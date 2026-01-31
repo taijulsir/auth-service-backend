@@ -4,7 +4,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import corsOptions from '#config/corsOptions';
-import { logger } from '#middleware/logEvents';
+// import { logger } from '#middleware/logEvents';
 import errorHandler from '#middleware/errorHandler';
 import verifyJWT from '#middleware/verifyJWT';
 import cookieParser from 'cookie-parser';
@@ -15,14 +15,17 @@ import connectDB from '#config/dbConn';
 // Import Routes
 import apiRoutes from '#routes/index';
 
+import { logRequest } from '#middleware/logMiddleware';
+import winstonLogger from '#utils/logger';
+
 const app = express();
 const PORT = process.env.PORT || 3500;
 
 // Connect to MongoDB
 connectDB();
 
-// custom middleware logger
-app.use(logger);
+// Winston logging middleware
+app.use(logRequest);
 
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirement
@@ -45,6 +48,7 @@ app.use('/api', apiRoutes);
 app.use(errorHandler);
 
 mongoose.connection.once('open', () => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+        winstonLogger.info(`Server running on port ${PORT}`);
+    });
 });

@@ -1,4 +1,3 @@
-/// <reference path="../types.d.ts" />
 import { NextFunction, Request, Response } from 'express';
 
 import jwt from 'jsonwebtoken';

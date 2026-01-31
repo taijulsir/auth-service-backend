@@ -2,18 +2,25 @@ import { Request, Response } from 'express';
 import User from '#models/User';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import logger from '#utils/logger';
 
 const handleLogin = async (req: Request, res: Response) => {
     const { email, pwd } = req.body;
     if (!email || !pwd) return res.status(400).json({ 'message': 'Email and password are required.' });
 
     const foundUser = await User.findOne({ email }).exec();
-    if (!foundUser) return res.sendStatus(401); // Unauthorized
+    if (!foundUser) {
+        logger.warn(`Login attempt for non-existent user: ${email}`);
+        return res.sendStatus(401);
+    }
 
     // Evaluate password
     const match = await bcrypt.compare(pwd, foundUser.password!);
     if (match) {
         const roles = Object.values(foundUser.roles).filter(Boolean);
+
+        logger.info(`User logged in: ${email}`, { roles });
+
         // Create JWTs
         const accessToken = jwt.sign(
             {

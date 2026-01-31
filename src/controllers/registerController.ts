@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User from '#models/User';
 import bcrypt from 'bcrypt';
+import logger from '#utils/logger';
 
 const handleNewUser = async (req: Request, res: Response) => {
     const { email, pwd } = req.body;
@@ -8,7 +9,10 @@ const handleNewUser = async (req: Request, res: Response) => {
 
     // check for duplicate usernames in the db
     const duplicate = await User.findOne({ email }).exec();
-    if (duplicate) return res.sendStatus(409); // Conflict 
+    if (duplicate) {
+        logger.warn(`Registration attempt for existing email: ${email}`);
+        return res.sendStatus(409);
+    }
 
     try {
         // encrypt the password
@@ -20,8 +24,10 @@ const handleNewUser = async (req: Request, res: Response) => {
             password: hashedPassword
         });
 
+        logger.info(`New user created: ${email}`);
         res.status(201).json({ 'success': `New user ${email} created!` });
     } catch (err: any) {
+        logger.error(`Error creating user ${email}`, { error: err.message });
         res.status(500).json({ 'message': err.message });
     }
 }

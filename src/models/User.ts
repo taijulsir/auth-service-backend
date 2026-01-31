@@ -24,7 +24,6 @@ const userSchema: Schema = new Schema({
     roles: {
         User: {
             type: Number,
-            default: 2001
         },
         Editor: Number,
         Admin: Number
