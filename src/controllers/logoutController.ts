@@ -16,7 +16,7 @@ const handleLogout = async (req: Request, res: Response) => {
     }
 
     // Delete refreshToken in db
-    foundUser.refreshToken = foundUser.refreshToken.filter(rt => rt !== refreshToken);;
+    foundUser.refreshToken = foundUser.refreshToken.filter(rt => rt !== refreshToken);
     await foundUser.save();
 
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
