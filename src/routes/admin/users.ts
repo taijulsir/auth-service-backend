@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import usersController from '#controllers/usersController';
+import usersController from '#controllers/admin/usersController';
 import ROLES_LIST from '#config/roles_list';
 import verifyRoles from '#middleware/verifyRoles';
 
