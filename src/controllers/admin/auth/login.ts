@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import logger from '#utils/logger';
 
-const handleLogin = async (req: Request, res: Response) => {
+export const handleLogin = async (req: Request, res: Response) => {
     const { email, pwd } = req.body;
     if (!email || !pwd) return res.status(400).json({ 'message': 'Email and password are required.' });
 
@@ -65,4 +65,3 @@ const handleLogin = async (req: Request, res: Response) => {
     }
 }
 
-export default { handleLogin };

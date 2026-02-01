@@ -1,11 +1,17 @@
-import login from './login';
-import register from './register';
-import refreshToken from './refreshToken';
-import logout from './logout';
+export { handleLogin } from './login';
+export { handleRegister } from './register';
+export { handleRefreshToken } from './refreshToken';
+export { handleLogout } from './logout';
 
-export const handleLogin = login.handleLogin;
-export const handleRegister = register.handleRegister;
-export const handleRefreshToken = refreshToken.handleRefreshToken;
-export const handleLogout = logout.handleLogout;
+// Default export for convenience (optional)
+import * as _log from './login';
+import * as _reg from './register';
+import * as _ref from './refreshToken';
+import * as _out from './logout';
 
-export default { handleLogin, handleRegister, handleRefreshToken, handleLogout };
+export default {
+	handleLogin: (_log as any).handleLogin,
+	handleRegister: (_reg as any).handleRegister,
+	handleRefreshToken: (_ref as any).handleRefreshToken,
+	handleLogout: (_out as any).handleLogout,
+};

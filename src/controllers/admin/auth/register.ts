@@ -3,7 +3,7 @@ import User from '#models/User';
 import bcrypt from 'bcrypt';
 import logger from '#utils/logger';
 
-const handleRegister = async (req: Request, res: Response) => {
+export const handleRegister = async (req: Request, res: Response) => {
     const { email, pwd } = req.body;
     if (!email || !pwd) return res.status(400).json({ 'message': 'Email and password are required.' });
 
@@ -32,4 +32,3 @@ const handleRegister = async (req: Request, res: Response) => {
     }
 }
 
-export default { handleRegister };

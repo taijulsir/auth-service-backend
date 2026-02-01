@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import User from '#models/User';
 import jwt from 'jsonwebtoken';
 
-const handleRefreshToken = async (req: Request, res: Response) => {
+export const handleRefreshToken = async (req: Request, res: Response) => {
     const cookies = req.cookies;
     if (!cookies?.jwt) return res.sendStatus(401); // No cookie found
 
@@ -83,4 +83,3 @@ const handleRefreshToken = async (req: Request, res: Response) => {
     );
 }
 
-export default { handleRefreshToken }

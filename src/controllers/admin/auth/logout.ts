@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import User from '#models/User';
 
-const handleLogout = async (req: Request, res: Response) => {
+export const handleLogout = async (req: Request, res: Response) => {
     // On client, also delete the accessToken
 
     const cookies = req.cookies;
@@ -23,4 +23,3 @@ const handleLogout = async (req: Request, res: Response) => {
     res.sendStatus(204);
 }
 
-export default { handleLogout }
