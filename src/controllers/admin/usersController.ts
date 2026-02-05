@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '#services/userService';
+import { AuditService } from '#services/auditService';
 
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -12,7 +13,21 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
 
 const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await UserService.deleteUser(req.body.id);
+        const adminId = (req as any).user?.id;
+        const targetId = req.body.id;
+        
+        await UserService.deleteUser(targetId);
+
+        await AuditService.log({
+            userId: adminId,
+            action: 'DELETE_USER',
+            resource: 'USER',
+            status: 'success',
+            ipAddress: req.ip,
+            userAgent: req.headers['user-agent'],
+            metadata: { targetUserId: targetId }
+        });
+
         res.json({ message: 'User deleted successfully' });
     } catch (err) {
         next(err);
