@@ -19,7 +19,18 @@ export interface IUser extends Document {
 }
 
 const userSchema: Schema = new Schema({
-    // ...existing code...
+    email: { type: String, required: true, unique: true, index: true },
+    password: { type: String, select: false },
+    roles: {
+        User: { type: Number, default: 2001 },
+        Editor: { type: Number },
+        Admin: { type: Number }
+    },
+    refreshToken: [{ type: String }],
+    provider: { type: String, default: 'local' },
+    providerId: { type: String },
+    avatar: { type: String },
+    passwordResetToken: { type: String, select: false },
     passwordResetExpires: Date,
     is2FAEnabled: {
         type: Boolean,
