@@ -5,6 +5,7 @@ import User from '../src/models/User';
 import { setupTestDB, teardownTestDB, clearTestDB } from './setup';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import errorHandler from '../src/middleware/errorHandler';
 
 // Import routes
 import consumerRoutes from '../src/routes/v1/consumer';
@@ -17,6 +18,7 @@ const createTestApp = () => {
   app.use(cookieParser());
   app.use(cors());
   app.use('/api/v1/consumer', consumerRoutes);
+  app.use(errorHandler);
   return app;
 };
 

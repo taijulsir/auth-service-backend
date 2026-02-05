@@ -1,4 +1,6 @@
 import rateLimit from 'express-rate-limit';
+import RedisStore from 'rate-limit-redis';
+import redis from '#config/redis';
 
 // Limit requests to auth endpoints to mitigate brute-force attempts
 const authLimiter = rateLimit({
@@ -7,6 +9,10 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many requests from this IP, please try again after 15 minutes',
+  store: new RedisStore({
+    // @ts-expect-error - expect ioredis
+    sendCommand: (...args: string[]) => redis.call(...args),
+  }),
 });
 
 export default authLimiter;

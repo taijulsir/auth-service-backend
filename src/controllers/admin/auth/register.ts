@@ -1,20 +1,20 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import User from '#models/User';
 import bcrypt from 'bcrypt';
 import logger from '#utils/logger';
+import { ForbiddenError } from '#utils/AppError';
 
-export const handleRegister = async (req: Request, res: Response) => {
-    const { email, pwd } = req.body;
-    if (!email || !pwd) return res.status(400).json({ 'message': 'Email and password are required.' });
-
-    // check for duplicate usernames in the db
-    const duplicate = await User.findOne({ email }).exec();
-    if (duplicate) {
-        logger.warn(`Registration attempt for existing email: ${email}`);
-        return res.sendStatus(409);
-    }
-
+export const handleRegister = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const { email, pwd } = req.body;
+
+        // check for duplicate usernames in the db
+        const duplicate = await User.findOne({ email }).exec();
+        if (duplicate) {
+            logger.warn(`Registration attempt for existing email: ${email}`);
+            throw new ForbiddenError('Email already exists');
+        }
+
         // encrypt the password
         const hashedPassword = await bcrypt.hash(pwd, 10);
 
@@ -26,9 +26,8 @@ export const handleRegister = async (req: Request, res: Response) => {
 
         logger.info(`New user created: ${email}`);
         res.status(201).json({ 'success': `New user ${email} created!` });
-    } catch (err: any) {
-        logger.error(`Error creating user ${email}`, { error: err.message });
-        res.status(500).json({ 'message': err.message });
+    } catch (err) {
+        next(err);
     }
 }
 

@@ -1,13 +1,15 @@
 import express from 'express';
 import { handleLogin, handleRegister, handleRefreshToken, handleLogout } from '../../controllers/admin/auth/authControllers';
+import { validate } from '#middleware/validate';
+import { loginSchema, registerSchema } from '#schemas/authSchema';
 
 const router = express.Router();
 
 // POST /auth/login
-router.post('/login', handleLogin);
+router.post('/login', validate(loginSchema), handleLogin);
 
 // POST /auth/register
-router.post('/register', handleRegister);
+router.post('/register', validate(registerSchema), handleRegister);
 
 // GET /auth/refresh
 router.get('/refresh', handleRefreshToken);

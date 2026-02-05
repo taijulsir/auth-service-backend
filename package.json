@@ -9,11 +9,13 @@
         "#middleware/*": "./src/middleware/*.ts",
         "#models/*": "./src/models/*.ts",
         "#routes/*": "./src/routes/*.ts",
+        "#services/*": "./src/services/*.ts",
+        "#schemas/*": "./src/schemas/*.ts",
         "#utils/*": "./src/utils/*.ts"
     },
     "scripts": {
         "start": "node dist/server.js",
-    "dev": "npm run build && node dist/server.js",
+        "dev": "npm run build && node dist/server.js",
         "build": "tsc && tsc-alias",
         "test": "jest --coverage",
         "test:watch": "jest --watch",
@@ -24,16 +26,21 @@
     },
     "dependencies": {
         "bcrypt": "^5.1.1",
+        "compression": "^1.7.4",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
         "dotenv": "^16.3.1",
         "express": "^4.18.2",
         "express-rate-limit": "^6.7.0",
         "helmet": "^7.0.0",
-        "compression": "^1.7.4",
+        "ioredis": "^5.9.2",
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.0.3",
-        "winston": "^3.19.0"
+        "rate-limit-redis": "^4.3.1",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^5.0.1",
+        "winston": "^3.19.0",
+        "zod": "^4.3.6"
     },
     "devDependencies": {
         "@types/bcrypt": "^6.0.0",
@@ -47,6 +54,8 @@
         "@types/mongoose": "^5.11.96",
         "@types/node": "^25.1.0",
         "@types/supertest": "^6.0.2",
+        "@types/swagger-jsdoc": "^6.0.4",
+        "@types/swagger-ui-express": "^4.1.8",
         "@typescript-eslint/eslint-plugin": "^6.21.0",
         "@typescript-eslint/parser": "^6.21.0",
         "eslint": "^8.56.0",

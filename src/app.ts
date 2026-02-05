@@ -10,8 +10,13 @@ import healthRoutes from '#routes/health';
 import apiRoutes from '#routes/index';
 import { logRequest } from '#middleware/logMiddleware';
 
+import { setupSwagger } from '#config/swagger';
+
 const createApp = () => {
   const app = express();
+
+  // Swagger Documentation
+  setupSwagger(app as any);
 
   // Request logging
   app.use(logRequest);
