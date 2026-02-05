@@ -16,6 +16,7 @@
     "scripts": {
         "start": "node dist/server.js",
         "dev": "npm run build && node dist/server.js",
+        "seed": "ts-node ./src/utils/seed.ts",
         "build": "tsc && tsc-alias",
         "test": "jest --coverage",
         "test:watch": "jest --watch",
