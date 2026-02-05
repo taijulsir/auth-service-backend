@@ -1,5 +1,6 @@
 import express from 'express';
 import { handleLogin, handleRegister, handleRefreshToken, handleLogout } from '../../controllers/admin/auth/authControllers';
+import { verify2FALogin } from '../../controllers/auth/twoFactorController';
 import { validate } from '#middleware/validate';
 import { loginSchema, registerSchema } from '#schemas/authSchema';
 
@@ -57,6 +58,9 @@ router.post('/login', validate(loginSchema), handleLogin);
  *         description: Bad request
  */
 router.post('/register', validate(registerSchema), handleRegister);
+
+// POST /auth/verify-mfa
+router.post('/verify-mfa', verify2FALogin);
 
 // GET /auth/refresh
 router.get('/refresh', handleRefreshToken);

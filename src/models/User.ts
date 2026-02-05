@@ -14,35 +14,21 @@ export interface IUser extends Document {
     avatar?: string;
     passwordResetToken?: string;
     passwordResetExpires?: Date;
+    is2FAEnabled: boolean;
+    twoFactorSecret?: string;
 }
 
 const userSchema: Schema = new Schema({
-    email: {
+    // ...existing code...
+    passwordResetExpires: Date,
+    is2FAEnabled: {
+        type: Boolean,
+        default: false
+    },
+    twoFactorSecret: {
         type: String,
-        required: true,
-        unique: true
-    },
-    password: {
-        type: String,
-        required: false
-    },
-    roles: {
-        User: {
-            type: Number,
-            default: 2001
-        },
-        Editor: Number,
-        Admin: Number
-    },
-    refreshToken: [String],
-    provider: {
-        type: String,
-        default: 'local'
-    },
-    providerId: String,
-    avatar: String,
-    passwordResetToken: String,
-    passwordResetExpires: Date
-});
+        select: false // Hide by default for security
+    }
+}, { timestamps: true });
 
 export default mongoose.model<IUser>('User', userSchema);

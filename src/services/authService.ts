@@ -43,6 +43,14 @@ export class AuthService {
     return { accessToken, refreshToken, roles };
   }
 
+  static generate2FAChallengeToken(userId: string) {
+    return jwt.sign(
+      { userId, mfa_pending: true },
+      process.env.ACCESS_TOKEN_SECRET!,
+      { expiresIn: '5m' }
+    );
+  }
+
   static async updateRefreshToken(userId: string, oldToken: string | null, newToken: string) {
     const user = await User.findById(userId);
     if (!user) return;
@@ -142,13 +150,14 @@ export class AuthService {
       foundUser.refreshToken = foundUser.refreshToken.filter(rt => rt !== refreshToken);
       await foundUser.save();
     }
+    return foundUser;
   }
 
   static async requestPasswordReset(email: string) {
     const user = await User.findOne({ email, provider: 'local' }).exec();
     if (!user) {
       // For security reasons, don't confirm if user exists or not
-      return;
+      return null;
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
@@ -159,6 +168,7 @@ export class AuthService {
     await user.save();
 
     await MailService.sendPasswordResetEmail(email, resetToken);
+    return user;
   }
 
   static async resetPassword(token: string, newPwd: string) {
@@ -177,5 +187,6 @@ export class AuthService {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
+    return user;
   }
 }

@@ -1,15 +1,33 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '#services/authService';
+import { AuditService } from '#services/auditService';
 import logger from '#utils/logger';
 
 export const handleLogin = async (req: Request, res: Response, next: NextFunction) => {
+    const { email, pwd } = req.body;
     try {
-        const { email, pwd } = req.body;
-
         const foundUser = await AuthService.verifyUserCredentials(email, pwd);
-        const { accessToken, refreshToken, roles } = AuthService.generateTokens(foundUser);
+        
+        if (foundUser.is2FAEnabled) {
+            const mfaToken = AuthService.generate2FAChallengeToken(foundUser._id.toString());
+            return res.json({ 
+                requiresMFA: true, 
+                mfaToken,
+                email: foundUser.email 
+            });
+        }
 
-        await AuthService.updateRefreshToken((foundUser._id as any).toString(), null, refreshToken);
+        const { accessToken, refreshToken, roles } = AuthService.generateTokens(foundUser);
+        // ...existing code...
+
+        await AuditService.log({
+            userId: (foundUser._id as any).toString(),
+            action: 'LOGIN',
+            resource: 'AUTH',
+            status: 'success',
+            ipAddress: req.ip || '',
+            userAgent: req.get('user-agent') || ''
+        });
 
         logger.info(`User logged in: ${email}`, { roles });
 
