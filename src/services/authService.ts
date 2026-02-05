@@ -45,7 +45,7 @@ export class AuthService {
     const user = await User.findById(userId);
     if (!user) return;
 
-    let newRefreshTokenArray = !user.refreshToken
+    const newRefreshTokenArray = !user.refreshToken
       ? [newToken]
       : user.refreshToken.filter(rt => rt !== oldToken).concat(newToken);
 
@@ -83,5 +83,37 @@ export class AuthService {
         }
       );
     });
+  }
+
+  static async findOrCreateSocialUser(profile: any) {
+    const { email, id, provider, photos } = profile;
+    
+    let user = await User.findOne({ 
+      $or: [
+        { email },
+        { providerId: id, provider }
+      ]
+    });
+
+    if (!user) {
+      user = await User.create({
+        email,
+        provider,
+        providerId: id,
+        avatar: photos && photos.length > 0 ? photos[0].value : null,
+        roles: { User: 2001 },
+        refreshToken: []
+      });
+    } else if (user.provider === 'local') {
+      // Link social provider to existing local account
+      user.provider = provider;
+      user.providerId = id;
+      if (!user.avatar && photos && photos.length > 0) {
+        user.avatar = photos[0].value;
+      }
+      await user.save();
+    }
+
+    return user;
   }
 }

@@ -11,9 +11,15 @@ import apiRoutes from '#routes/index';
 import { logRequest } from '#middleware/logMiddleware';
 
 import { setupSwagger } from '#config/swagger';
+import configurePassport from '#config/passport';
+import passport from 'passport';
 
 const createApp = () => {
   const app = express();
+
+  // Initialize Passport
+  configurePassport();
+  app.use(passport.initialize());
 
   // Swagger Documentation
   setupSwagger(app as any);
