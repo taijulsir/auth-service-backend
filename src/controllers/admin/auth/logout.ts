@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import User from '#models/User';
+import { AuthService } from '#services/authService';
 
 export const handleLogout = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -7,13 +7,7 @@ export const handleLogout = async (req: Request, res: Response, next: NextFuncti
         if (!cookies?.jwt) return res.sendStatus(204); // No content
         const refreshToken = cookies.jwt;
 
-        // Is refreshToken in db?
-        const foundUser = await User.findOne({ refreshToken }).exec();
-        if (foundUser) {
-            // Delete refreshToken in db
-            foundUser.refreshToken = foundUser.refreshToken.filter(rt => rt !== refreshToken);
-            await foundUser.save();
-        }
+        await AuthService.logout(refreshToken);
 
         res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
         res.sendStatus(204);

@@ -12,6 +12,8 @@ export interface IUser extends Document {
     provider?: string;
     providerId?: string;
     avatar?: string;
+    passwordResetToken?: string;
+    passwordResetExpires?: Date;
 }
 
 const userSchema: Schema = new Schema({
@@ -38,7 +40,9 @@ const userSchema: Schema = new Schema({
         default: 'local'
     },
     providerId: String,
-    avatar: String
+    avatar: String,
+    passwordResetToken: String,
+    passwordResetExpires: Date
 });
 
 export default mongoose.model<IUser>('User', userSchema);

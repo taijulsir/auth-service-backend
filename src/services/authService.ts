@@ -1,7 +1,9 @@
 import User from '#models/User';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { UnauthorizedError, ForbiddenError } from '#utils/AppError';
+import crypto from 'crypto';
+import { UnauthorizedError, ForbiddenError, BadRequestError } from '#utils/AppError';
+import { MailService } from '#services/mailService';
 
 export class AuthService {
   static async verifyUserCredentials(email: string, pwd: string) {
@@ -115,5 +117,65 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  static async registerUser(email: string, pwd: string) {
+    const duplicate = await User.findOne({ email }).exec();
+    if (duplicate) {
+      throw new ForbiddenError('Email already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(pwd, 10);
+    const newUser = await User.create({
+      email: email,
+      password: hashedPassword,
+      roles: { User: 2001 },
+      refreshToken: []
+    });
+
+    return newUser;
+  }
+
+  static async logout(refreshToken: string) {
+    const foundUser = await User.findOne({ refreshToken }).exec();
+    if (foundUser) {
+      foundUser.refreshToken = foundUser.refreshToken.filter(rt => rt !== refreshToken);
+      await foundUser.save();
+    }
+  }
+
+  static async requestPasswordReset(email: string) {
+    const user = await User.findOne({ email, provider: 'local' }).exec();
+    if (!user) {
+      // For security reasons, don't confirm if user exists or not
+      return;
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = new Date(Date.now() + 3600000); // 1 hour
+    await user.save();
+
+    await MailService.sendPasswordResetEmail(email, resetToken);
+  }
+
+  static async resetPassword(token: string, newPwd: string) {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() }
+    }).exec();
+
+    if (!user) {
+      throw new BadRequestError('Token is invalid or has expired');
+    }
+
+    user.password = await bcrypt.hash(newPwd, 10);
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
   }
 }
